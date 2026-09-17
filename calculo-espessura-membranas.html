@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espessura de Filme Seco</title>
+<style>
+:root{
+  color-scheme: light;
+  --ground:#e9edf1;
+  --paper:#ffffff;
+  --paper-2:#f4f7f9;
+  --ink:#151f28;
+  --ink-2:#4a5b69;
+  --ink-3:#7d8f9d;
+  --rule:#cfd9e1;
+  --rule-strong:#a9b9c6;
+  --accent:#0b6e84;
+  --accent-soft:#e3f0f4;
+  --film:#c8881c;
+  --film-soft:#f5e6c9;
+  --solv:#6ca6c0;
+  --solv-soft:#dbeaf1;
+  --ok:#1c6f4a;
+  --ok-soft:#dff0e6;
+  --warn:#9a5d12;
+  --warn-soft:#f8ead6;
+  --bad:#a52f28;
+  --bad-soft:#f8e2e0;
+  --shadow:0 1px 2px rgba(21,31,40,.06), 0 8px 24px rgba(21,31,40,.06);
+  --mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0e161c;
+    --paper:#172129;
+    --paper-2:#1d2932;
+    --ink:#e6edf2;
+    --ink-2:#a9bbc7;
+    --ink-3:#7b8f9c;
+    --rule:#2c3b46;
+    --rule-strong:#42555f;
+    --accent:#4fbcd6;
+    --accent-soft:#16333c;
+    --film:#e0a53c;
+    --film-soft:#3a2f16;
+    --solv:#78b4cd;
+    --solv-soft:#17323d;
+    --ok:#5fc492;
+    --ok-soft:#153229;
+    --warn:#e0a45c;
+    --warn-soft:#332614;
+    --bad:#ef8279;
+    --bad-soft:#361e1c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0e161c;
+  --paper:#172129;
+  --paper-2:#1d2932;
+  --ink:#e6edf2;
+  --ink-2:#a9bbc7;
+  --ink-3:#7b8f9c;
+  --rule:#2c3b46;
+  --rule-strong:#42555f;
+  --accent:#4fbcd6;
+  --accent-soft:#16333c;
+  --film:#e0a53c;
+  --film-soft:#3a2f16;
+  --solv:#78b4cd;
+  --solv-soft:#17323d;
+  --ok:#5fc492;
+  --ok-soft:#153229;
+  --warn:#e0a45c;
+  --warn-soft:#332614;
+  --bad:#ef8279;
+  --bad-soft:#361e1c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+img{max-width:100%;}
+[hidden]{display:none !important;}
+
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:0 56px;}
+
+/* ---------- topo ---------- */
+.masthead{
+  border-bottom:1px solid var(--rule);
+  background:var(--paper);
+  margin-inline:-16px;
+  padding-inline:16px;
+  padding-block:18px 16px;
+  margin-bottom:24px;
+}
+.masthead-in{max-width:1180px;margin:0 auto;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+.brandmark{
+  flex:1 1 420px;min-width:0;
+}
+.eyebrow{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);font-weight:650;margin:0 0 4px;
+}
+h1{
+  font-size:clamp(20px,3.4vw,26px);line-height:1.15;margin:0 0 6px;
+  letter-spacing:-.015em;text-wrap:balance;font-weight:680;
+}
+.sub{margin:0;color:var(--ink-2);font-size:13.5px;max-width:62ch;}
+.topbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+button{font:inherit;cursor:pointer;}
+.btn{
+  border:1px solid var(--rule-strong);background:var(--paper-2);color:var(--ink);
+  padding:8px 14px;border-radius:6px;font-size:13.5px;font-weight:560;
+  transition:background .12s ease, border-color .12s ease;
+}
+.btn:hover{background:var(--accent-soft);border-color:var(--accent);}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+:root[data-theme="dark"] .btn-primary,
+:root:not([data-theme="light"]) .btn-primary{color:#07161b;}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn-primary{color:#fff;}}
+.btn-primary:hover{filter:brightness(1.08);background:var(--accent);}
+
+/* ---------- aviso cimentício ---------- */
+.notice{
+  display:flex;gap:12px;align-items:flex-start;
+  background:var(--warn-soft);border:1px solid var(--warn);
+  border-left-width:4px;border-radius:5px;padding:12px 14px;margin-bottom:22px;
+}
+.notice .ico{font-family:var(--mono);font-weight:700;color:var(--warn);flex:none;line-height:1.4;}
+.notice p{margin:0;font-size:13px;color:var(--ink);max-width:88ch;}
+.notice strong{font-weight:660;}
+
+/* ---------- grelha ---------- */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr);}}
+
+.panel{
+  background:var(--paper);border:1px solid var(--rule);border-radius:8px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.panel + .panel{margin-top:22px;}
+.panel-hd{
+  padding:13px 18px;border-bottom:1px solid var(--rule);background:var(--paper-2);
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;
+}
+.panel-hd h2{
+  margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:680;color:var(--ink-2);
+}
+.panel-hd .hint{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);}
+.panel-bd{padding:18px;}
+
+/* ---------- campos ---------- */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:15px;}
+.field:last-child{margin-bottom:0;}
+.field label{font-size:12.5px;font-weight:620;color:var(--ink);}
+.field .desc{font-size:11.5px;color:var(--ink-3);line-height:1.4;}
+input[type="text"],input[type="date"],select,textarea{
+  font:inherit;font-size:14px;color:var(--ink);background:var(--paper-2);
+  border:1px solid var(--rule-strong);border-radius:5px;padding:8px 10px;width:100%;
+  font-variant-numeric:tabular-nums;
+}
+input[type="text"]:focus,input[type="date"]:focus,select:focus,textarea:focus{
+  outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent);
+}
+.inline{display:grid;grid-template-columns:1fr 128px;gap:8px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:460px){.row2,.inline{grid-template-columns:1fr;}}
+.chk{display:flex;gap:9px;align-items:flex-start;margin-bottom:12px;}
+.chk input{margin-top:3px;flex:none;accent-color:var(--accent);width:15px;height:15px;}
+.chk label{font-size:13px;font-weight:600;}
+
+fieldset{border:0;padding:0;margin:0 0 20px;}
+fieldset:last-of-type{margin-bottom:0;}
+legend{
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:680;
+  color:var(--accent);padding:0 0 9px;margin-bottom:11px;width:100%;
+  border-bottom:1px solid var(--rule);
+}
+
+/* modo */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule-strong);border-radius:6px;overflow:hidden;margin-bottom:18px;}
+.modes button{
+  border:0;background:var(--paper-2);color:var(--ink-2);padding:11px 8px;
+  font-size:13px;font-weight:620;line-height:1.25;
+}
+.modes button + button{border-left:1px solid var(--rule-strong);}
+.modes button[aria-pressed="true"]{background:var(--accent);color:#fff;}
+:root[data-theme="dark"] .modes button[aria-pressed="true"]{color:#07161b;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .modes button[aria-pressed="true"]{color:#07161b;}}
+.modes button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;}
+.modes small{display:block;font-weight:450;font-size:11px;opacity:.82;margin-top:2px;}
+
+/* ---------- resultados ---------- */
+.headline{
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding:16px 18px;border-bottom:1px solid var(--rule);
+  background:linear-gradient(0deg,var(--paper) 0%, var(--accent-soft) 100%);
+}
+.headline .big{
+  font-family:var(--mono);font-size:clamp(30px,6.5vw,42px);font-weight:600;
+  letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.headline .unit{font-family:var(--mono);font-size:17px;color:var(--ink-2);}
+.headline .cap{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:660;width:100%;margin-bottom:2px;}
+
+dl.readout{margin:0;display:grid;grid-template-columns:1fr auto;gap:0;}
+dl.readout dt,dl.readout dd{
+  padding:9px 0;border-bottom:1px solid var(--rule);margin:0;font-size:13px;
+}
+dl.readout dt{color:var(--ink-2);padding-right:14px;}
+dl.readout dd{
+  font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;
+  color:var(--ink);font-weight:550;white-space:nowrap;
+}
+dl.readout .strong dt,dl.readout .strong dd{font-weight:680;color:var(--ink);}
+dl.readout div{display:contents;}
+dl.readout div:last-child dt,dl.readout div:last-child dd{border-bottom:0;}
+dl.readout dt .tag{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
+  margin-left:6px;
+}
+
+/* corte do filme */
+.section-lab{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:680;
+  color:var(--ink-2);margin:0 0 10px;
+}
+.cut{margin-top:4px;}
+.cut-stack{border:1px solid var(--rule-strong);border-radius:4px;overflow:hidden;background:var(--paper-2);}
+.cut-layer{display:flex;align-items:center;padding:0 10px;font-family:var(--mono);font-size:11.5px;white-space:nowrap;overflow:hidden;}
+.cut-solv{
+  background:repeating-linear-gradient(135deg,var(--solv-soft),var(--solv-soft) 6px,transparent 6px,transparent 12px);
+  border-bottom:1px dashed var(--solv);color:var(--ink-2);
+}
+.cut-film{background:var(--film-soft);border-bottom:1px solid var(--film);color:var(--ink);font-weight:600;}
+.cut-sub{
+  background:repeating-linear-gradient(45deg,var(--rule),var(--rule) 1px,transparent 1px,transparent 7px);
+  height:22px;color:var(--ink-3);font-size:10.5px;
+}
+.cut-key{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--ink-2);}
+.cut-key span{display:flex;gap:6px;align-items:center;}
+.swatch{width:11px;height:11px;border-radius:2px;flex:none;border:1px solid var(--rule-strong);}
+.sw-film{background:var(--film-soft);border-color:var(--film);}
+.sw-solv{background:var(--solv-soft);border-color:var(--solv);}
+
+/* flags */
+.flags{display:flex;flex-direction:column;gap:9px;margin-top:16px;}
+.flag{
+  display:flex;gap:10px;align-items:flex-start;font-size:12.5px;
+  border-radius:5px;padding:10px 12px;border:1px solid;line-height:1.45;
+}
+.flag .lab{font-family:var(--mono);font-weight:700;font-size:10.5px;letter-spacing:.08em;flex:none;padding-top:1px;}
+.flag.ok{background:var(--ok-soft);border-color:var(--ok);}
+.flag.ok .lab{color:var(--ok);}
+.flag.warn{background:var(--warn-soft);border-color:var(--warn);}
+.flag.warn .lab{color:var(--warn);}
+.flag.bad{background:var(--bad-soft);border-color:var(--bad);}
+.flag.bad .lab{color:var(--bad);}
+.flag p{margin:0;}
+
+/* fórmulas */
+.formula{
+  font-family:var(--mono);font-size:12.5px;background:var(--paper-2);
+  border:1px solid var(--rule);border-left:3px solid var(--accent);
+  border-radius:4px;padding:10px 12px;margin:0 0 9px;overflow-x:auto;white-space:nowrap;
+  color:var(--ink);
+}
+.formula:last-child{margin-bottom:0;}
+.formula b{color:var(--accent);font-weight:600;}
+
+/* relatório */
+.report h3{font-size:17px;margin:0 0 3px;font-weight:660;letter-spacing:-.01em;}
+.report .rep-sub{margin:0 0 18px;font-size:12.5px;color:var(--ink-2);}
+.rep-id{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0;border-top:1px solid var(--rule);margin-bottom:20px;}
+.rep-id div{border-bottom:1px solid var(--rule);padding:8px 0;padding-right:16px;}
+.rep-id dt{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:650;}
+.rep-id dd{margin:2px 0 0;font-size:13.5px;font-weight:560;}
+table.rep{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px;}
+table.rep caption{
+  text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:680;color:var(--accent);padding-bottom:7px;
+}
+table.rep th,table.rep td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top;}
+table.rep th{width:56%;font-weight:520;color:var(--ink-2);padding-left:0;}
+table.rep td{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;padding-right:0;font-weight:550;}
+table.rep tr.hl th,table.rep tr.hl td{font-weight:700;color:var(--ink);border-bottom:2px solid var(--rule-strong);}
+.rep-notes{font-size:12px;color:var(--ink-2);line-height:1.6;}
+.rep-notes p{margin:0 0 8px;}
+.rep-notes p:last-child{margin-bottom:0;}
+.rep-refs{
+  margin-top:18px;padding-top:12px;border-top:1px solid var(--rule);
+  font-size:11.5px;color:var(--ink-3);line-height:1.6;
+}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:34px;}
+.sign div{border-top:1px solid var(--rule-strong);padding-top:6px;font-size:11.5px;color:var(--ink-2);text-align:center;}
+@media (max-width:560px){.sign{grid-template-columns:1fr;gap:26px;}}
+
+footer.pgfoot{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.6;max-width:80ch;}
+
+/* ---------- impressão ---------- */
+@media print{
+  :root{
+    color-scheme:light;
+    --ground:#fff;--paper:#fff;--paper-2:#fff;--ink:#000;--ink-2:#333;--ink-3:#555;
+    --rule:#bbb;--rule-strong:#888;--accent:#0b6e84;--accent-soft:#fff;--shadow:none;
+    --film-soft:#f3e4c6;--solv-soft:#e0edf3;
+  }
+  body{background:#fff;font-size:11pt;}
+  .no-print{display:none !important;}
+  .wrap{max-width:none;padding:0;}
+  .panel{border:0;box-shadow:none;border-radius:0;}
+  .panel-bd{padding:0;}
+  .report{page-break-inside:auto;}
+  table.rep{page-break-inside:avoid;}
+  a{color:inherit;text-decoration:none;}
+  @page{margin:16mm 14mm;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead no-print">
+  <div class="masthead-in">
+    <div class="brandmark">
+      <p class="eyebrow">Membranas líquidas &middot; moldadas no local</p>
+      <h1>Espessura de filme seco e consumo</h1>
+      <p class="sub">Converte os dados da ficha técnica do fabricante &mdash; densidade, resíduo sólido e consumo &mdash; em espessura de filme seco, nos dois sentidos. Metodologia do Guia de Cálculo de Espessuras para as Membranas (IBI, 2022).</p>
+    </div>
+    <div class="topbtns">
+      <button type="button" class="btn" id="btnTheme" aria-label="Alternar tema claro e escuro">Tema</button>
+      <button type="button" class="btn" id="btnExemplo">Exemplo do guia</button>
+      <button type="button" class="btn" id="btnLimpar">Limpar</button>
+      <button type="button" class="btn btn-primary" id="btnImprimir">Imprimir relatório</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="notice no-print">
+    <span class="ico">!</span>
+    <p><strong>Válido apenas para sistemas moldados no local que curam por evaporação do solvente</strong> &mdash; membrana acrílica (NBR 13321), membrana de polímero acrílico <em>sem</em> cimento (NBR 15885), membrana de poliuretano (NBR 15487), emulsões asfálticas e produtos 100&nbsp;% sólidos. <strong>Não use para cimentícios</strong> &mdash; argamassa polimérica (NBR 11905), argamassa impermeável (NBR 16072) e membrana de polímero acrílico <em>com</em> cimento (NBR 15885): neles parte da água é quimicamente combinada na hidratação do cimento e permanece no filme endurecido, de modo que a equação subestima a espessura. Para esses, use o consumo por milímetro ou a densidade da argamassa endurecida declarados pelo fabricante.</p>
+  </div>
+
+  <div class="cols">
+
+    <!-- ================= ENTRADA ================= -->
+    <div>
+      <section class="panel no-print">
+        <div class="panel-hd">
+          <h2>Dados da ficha técnica</h2>
+          <span class="hint">entrada manual</span>
+        </div>
+        <div class="panel-bd">
+
+          <div class="modes" role="group" aria-label="Sentido do cálculo">
+            <button type="button" id="mA" aria-pressed="true">Consumo &rarr; espessura<small>tenho o consumo, quero a e.f.s.</small></button>
+            <button type="button" id="mB" aria-pressed="false">Espessura &rarr; consumo<small>tenho a e.f.s. alvo, quero o consumo</small></button>
+          </div>
+
+          <fieldset>
+            <legend>Identificação do produto</legend>
+            <div class="field">
+              <label for="fProduto">Produto</label>
+              <input type="text" id="fProduto" placeholder="Nome comercial, conforme a ficha técnica">
+            </div>
+            <div class="field">
+              <label for="fNorma">Norma / classe do sistema</label>
+              <input type="text" id="fNorma" placeholder="Ex.: ABNT NBR 13321 &mdash; membrana acrílica">
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Parâmetros físicos</legend>
+
+            <div class="field">
+              <label for="fDens">Densidade da mistura <span class="desc">(d<sub>T</sub>)</span></label>
+              <div class="inline">
+                <input type="text" id="fDens" inputmode="decimal" placeholder="1,40">
+                <select id="fDensUn" aria-label="Unidade da densidade">
+                  <option value="1000">kg/L</option>
+                  <option value="1">kg/m³</option>
+                  <option value="1000" data-alt="gcm3">g/cm³</option>
+                </select>
+              </div>
+              <span class="desc">Aparece na ficha como &ldquo;peso específico&rdquo; ou &ldquo;densidade&rdquo;. Em produto bicomponente, use a densidade <strong>da mistura já pronta</strong>, não a de um componente isolado.</span>
+            </div>
+
+            <div class="field">
+              <label for="fTms">Resíduo em peso seco <span class="desc">(T<sub>ms</sub>, % em massa)</span></label>
+              <input type="text" id="fTms" inputmode="decimal" placeholder="71">
+              <span class="desc">Também chamado de &ldquo;teor de sólidos em massa&rdquo; ou &ldquo;sólidos por peso&rdquo;. Se a ficha trouxer sólidos <em>em volume</em>, esse dado é outro &mdash; o app calcula o volumétrico para você. Produto 100&nbsp;% sólidos (PU puro, poliureia, epóxi): use 100.</span>
+            </div>
+
+            <div class="field">
+              <label for="fSolv">Solvente / veículo</label>
+              <div class="inline">
+                <select id="fSolv">
+                  <option value="1000" selected>Água (base aquosa)</option>
+                  <option value="790">Aguarrás mineral</option>
+                  <option value="866">Xileno</option>
+                  <option value="870">Aromático genérico</option>
+                  <option value="custom">Outro (informar)</option>
+                </select>
+                <input type="text" id="fSolvD" inputmode="decimal" value="1000" aria-label="Densidade do solvente em kg/m³" disabled>
+              </div>
+              <span class="desc">Densidade do solvente em kg/m³. A base do produto está na ficha técnica &mdash; base água, base solvente, isenta de solvente.</span>
+            </div>
+          </fieldset>
+
+          <fieldset id="grpA">
+            <legend>Consumo aplicado</legend>
+            <div class="field">
+              <label for="fCons">Consumo da membrana <span class="desc">(C, kg/m²)</span></label>
+              <input type="text" id="fCons" inputmode="decimal" placeholder="2,00">
+              <span class="desc">Consumo de produto que forma filme, sem contar a saturação do estruturante &mdash; essa entra logo abaixo.</span>
+            </div>
+            <div class="field">
+              <label for="fExig">Espessura mínima exigida em projeto <span class="desc">(mm) &mdash; opcional</span></label>
+              <input type="text" id="fExig" inputmode="decimal" placeholder="1,50">
+              <span class="desc">Para conferir se o consumo informado atende ao que o memorial especifica.</span>
+            </div>
+          </fieldset>
+
+          <fieldset id="grpB" hidden>
+            <legend>Espessura alvo</legend>
+            <div class="field">
+              <label for="fAlvo">Espessura de filme seco desejada <span class="desc">(e.f.s., mm)</span></label>
+              <input type="text" id="fAlvo" inputmode="decimal" placeholder="1,50">
+              <span class="desc">A espessura que o projeto exige para o local e o sistema, conforme as tabelas do item 11.3 do Guia Orientativo do IBI.</span>
+            </div>
+            <div class="field">
+              <label for="fConsFT">Consumo mínimo recomendado pelo fabricante <span class="desc">(kg/m²) &mdash; opcional</span></label>
+              <input type="text" id="fConsFT" inputmode="decimal" placeholder="2,00">
+              <span class="desc">Serve para avisar quando a espessura alvo exigir mais produto do que o fabricante recomenda.</span>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Estruturante, demãos e perdas</legend>
+
+            <div class="chk">
+              <input type="checkbox" id="fTemEst">
+              <label for="fTemEst">Sistema estruturado com tela ou véu</label>
+            </div>
+            <div class="field" id="wrapEst" hidden>
+              <label for="fEst">Consumo adicional para saturação do estruturante <span class="desc">(kg/m²)</span></label>
+              <input type="text" id="fEst" inputmode="decimal" placeholder="0,50">
+              <span class="desc">Confirme na ficha técnica. Valores usuais de referência, quando o fabricante não declara: véu de poliéster leve 0,3&ndash;0,5; tela de poliéster 100&nbsp;g/m² 0,5&ndash;0,8; tela de fibra de vidro 0,4&ndash;0,7. <strong>Esse consumo não é convertido em espessura</strong> &mdash; ele satura a trama, e contá-lo como filme superestimaria a e.f.s.</span>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="fDemao">Consumo máx. por demão <span class="desc">(kg/m²)</span></label>
+                <input type="text" id="fDemao" inputmode="decimal" placeholder="1,00">
+                <span class="desc">Camada grossa demais não cura: retém solvente, enruga e forma bolhas.</span>
+              </div>
+              <div class="field">
+                <label for="fPerda">Fator de perdas <span class="desc">(%)</span></label>
+                <input type="text" id="fPerda" inputmode="decimal" placeholder="10">
+                <span class="desc">Rolo e trincha 5&ndash;10; airless 10&ndash;25; substrato poroso ou muitos arremates, acima disso.</span>
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="fArea">Área a impermeabilizar <span class="desc">(m²)</span></label>
+                <input type="text" id="fArea" inputmode="decimal" placeholder="120">
+              </div>
+              <div class="field">
+                <label for="fEmb">Massa da embalagem <span class="desc">(kg)</span></label>
+                <input type="text" id="fEmb" inputmode="decimal" placeholder="20">
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Auditoria da ficha técnica &mdash; opcional</legend>
+            <div class="field">
+              <label for="fDecl">Espessura de filme seco declarada pelo fabricante <span class="desc">(mm)</span></label>
+              <input type="text" id="fDecl" inputmode="decimal" placeholder="1,00">
+              <span class="desc">A e.f.s. que a ficha atribui ao consumo informado. O item 11.1&nbsp;b) do Guia Orientativo obriga o fabricante a declarar a e.f.s. equivalente a cada consumo &mdash; quando o número dele não fecha com a própria densidade e o próprio resíduo sólido que publica, isso aparece aqui.</span>
+            </div>
+          </fieldset>
+
+        </div>
+      </section>
+
+      <section class="panel no-print">
+        <div class="panel-hd"><h2>Equações empregadas</h2><span class="hint">IBI 2022, itens 2 a 4</span></div>
+        <div class="panel-bd">
+          <p class="formula"><b>e.f.s.</b> = 1000 · C · ( 1/d<sub>T</sub> &minus; (1 &minus; T<sub>ms</sub>) / d<sub>Solv</sub> )</p>
+          <p class="formula"><b>Cap<sub>pelíc</sub></b> = e.f.s. / C = 1000 · ( 1/d<sub>T</sub> &minus; (1 &minus; T<sub>ms</sub>) / d<sub>Solv</sub> )</p>
+          <p class="formula"><b>C</b> = e.f.s. / Cap<sub>pelíc</sub></p>
+          <p class="formula"><b>e.f.m.</b> = 1000 · C / d<sub>T</sub>&nbsp;&nbsp;&nbsp;&nbsp;<b>T<sub>vs</sub></b> = 1 &minus; (1 &minus; T<sub>ms</sub>) · d<sub>T</sub> / d<sub>Solv</sub></p>
+          <p class="rep-notes" style="margin-top:12px">A capacidade de película não depende do consumo &mdash; só da densidade, do resíduo sólido e do solvente. É uma propriedade do produto, e por isso serve para comparar membranas de fabricantes diferentes numa única grandeza: milímetros de filme seco por quilo aplicado por metro quadrado.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= SAÍDA ================= -->
+    <div>
+      <section class="panel no-print" id="pnlResultado">
+        <div class="headline">
+          <span class="cap" id="hlCap">Espessura de filme seco obtida</span>
+          <span class="big" id="hlBig">&mdash;</span>
+          <span class="unit" id="hlUnit">mm</span>
+        </div>
+        <div class="panel-bd">
+          <dl class="readout" id="readout"></dl>
+
+          <div class="cut" id="cutBox" hidden>
+            <p class="section-lab" style="margin-top:20px">Corte do filme</p>
+            <div class="cut-stack" id="cutStack">
+              <div class="cut-layer cut-solv" id="cutSolv"></div>
+              <div class="cut-layer cut-film" id="cutFilm"></div>
+              <div class="cut-layer cut-sub">substrato</div>
+            </div>
+            <div class="cut-key">
+              <span><i class="swatch sw-solv"></i> solvente que evapora</span>
+              <span><i class="swatch sw-film"></i> filme seco que permanece</span>
+            </div>
+          </div>
+
+          <div class="flags" id="flags"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-hd no-print"><h2>Relatório</h2><span class="hint">anexável ao memorial</span></div>
+        <div class="panel-bd">
+          <div class="no-print">
+            <div class="row2">
+              <div class="field"><label for="fObra">Obra</label><input type="text" id="fObra" placeholder="Nome do empreendimento"></div>
+              <div class="field"><label for="fLocal">Local / área</label><input type="text" id="fLocal" placeholder="Ex.: cobertura não utilizável"></div>
+            </div>
+            <div class="row2">
+              <div class="field"><label for="fResp">Responsável técnico</label><input type="text" id="fResp" placeholder="Nome e registro CREA/CAU"></div>
+              <div class="field"><label for="fRev">Revisão</label><input type="text" id="fRev" placeholder="R00"></div>
+            </div>
+            <div class="field"><label for="fData">Data</label><input type="date" id="fData"></div>
+            <hr style="border:0;border-top:1px solid var(--rule);margin:18px 0">
+          </div>
+
+          <div class="report" id="report">
+            <h3 id="repTitulo">Memória de cálculo &mdash; espessura de filme seco</h3>
+            <p class="rep-sub">Membrana líquida moldada no local &middot; método do IBI &mdash; Guia de Cálculo de Espessuras para as Membranas, 2022</p>
+            <dl class="rep-id" id="repId"></dl>
+            <table class="rep" id="repEnt"><caption>Dados de entrada</caption><tbody></tbody></table>
+            <table class="rep" id="repRes"><caption>Resultados</caption><tbody></tbody></table>
+            <div class="rep-notes" id="repNotas"></div>
+            <div class="rep-refs">
+              Método de cálculo: IBI &mdash; Instituto Brasileiro de Impermeabilização, <em>Guia de Cálculo de Espessuras para as Membranas</em>, 2022, itens 2 a 5.
+              Espessuras mínimas, V.U.R. e requisitos de V.U.P. por local e sistema: IBI, <em>Guia Orientativo para o Desempenho dos Sistemas de Impermeabilização</em>, 2ª edição, 2023, itens 11.2 e 11.3.
+              Normas correlatas: ABNT NBR 9574, ABNT NBR 9575, ABNT NBR 15575, ABNT NBR 13321, ABNT NBR 15487, ABNT NBR 15885.
+              Os valores de entrada são de responsabilidade de quem os transcreveu da ficha técnica do fabricante, na revisão vigente.
+            </div>
+            <div class="sign">
+              <div id="signResp">Responsável técnico</div>
+              <div>Contratante &mdash; ciente</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer class="pgfoot no-print">
+    Ferramenta de apoio ao projeto. O resultado é a espessura <em>teórica</em> decorrente dos dados declarados na ficha técnica &mdash; a espessura efetivamente obtida em obra depende do preparo do substrato (rugosidade CSP 2 a 3), do método de aplicação e do controle de consumo, e deve ser verificada conforme o item 13.5 do Guia Orientativo do IBI. Para conferência durante a aplicação, use o teor de sólidos em volume com pente de espessura úmida (ASTM D4414): e.f.s. = e.f.m. medida × T<sub>vs</sub>.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- tema ---------- */
+  $("btnTheme").addEventListener("click", function(){
+    var r = document.documentElement;
+    var cur = r.getAttribute("data-theme");
+    if(!cur){
+      var darkNow = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      cur = darkNow ? "dark" : "light";
+    }
+    r.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  });
+
+  /* ---------- utilitários ---------- */
+  function val(id){
+    var el = $(id); if(!el) return NaN;
+    var s = String(el.value).trim().replace(/\s/g,"").replace(",",".");
+    if(s === "") return NaN;
+    var v = parseFloat(s);
+    return isFinite(v) ? v : NaN;
+  }
+  function txt(id){ var el = $(id); return el ? String(el.value).trim() : ""; }
+  function fmt(v, d){
+    if(!isFinite(v)) return "—";
+    return v.toLocaleString("pt-BR",{minimumFractionDigits:d, maximumFractionDigits:d});
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];
+    });
+  }
+
+  /* ---------- modo ---------- */
+  var modo = "A";
+  function setModo(m){
+    modo = m;
+    $("mA").setAttribute("aria-pressed", m === "A" ? "true" : "false");
+    $("mB").setAttribute("aria-pressed", m === "B" ? "true" : "false");
+    $("grpA").hidden = (m !== "A");
+    $("grpB").hidden = (m !== "B");
+    calc();
+  }
+  $("mA").addEventListener("click", function(){ setModo("A"); });
+  $("mB").addEventListener("click", function(){ setModo("B"); });
+
+  /* ---------- solvente ---------- */
+  $("fSolv").addEventListener("change", function(){
+    var custom = this.value === "custom";
+    $("fSolvD").disabled = !custom;
+    if(!custom){ $("fSolvD").value = this.value; }
+    else if($("fSolvD").value === ""){ $("fSolvD").value = "900"; }
+    calc();
+  });
+  $("fTemEst").addEventListener("change", function(){
+    $("wrapEst").hidden = !this.checked;
+    calc();
+  });
+
+  /* ---------- cálculo ---------- */
+  function calc(){
+    var densUn = parseFloat($("fDensUn").value) || 1;
+    var dT   = val("fDens") * densUn;            // kg/m³
+    var tms  = val("fTms") / 100;                // fração
+    var dS   = val("fSolvD");                    // kg/m³
+    var est  = $("fTemEst").checked ? (isFinite(val("fEst")) ? val("fEst") : 0) : 0;
+    var perd = isFinite(val("fPerda")) ? val("fPerda") : 0;
+    var maxD = val("fDemao");
+    var area = val("fArea");
+    var emb  = val("fEmb");
+    var decl = val("fDecl");
+    var exig = val("fExig");
+    var consFT = val("fConsFT");
+
+    var flags = [];
+    var ok = true;
+
+    if(!isFinite(dT) || dT <= 0){ ok = false; }
+    if(!isFinite(tms) || tms < 0 || tms > 1){ ok = false; }
+    if(!isFinite(dS) || dS <= 0){ ok = false; }
+
+    var cap = NaN, tvs = NaN, C = NaN, efs = NaN, efm = NaN, efsolv = NaN;
+
+    if(ok){
+      cap = 1000 * (1/dT - (1 - tms)/dS);        // mm por kg/m²
+      tvs = 1 - (1 - tms) * dT / dS;             // fração volumétrica de sólidos
+
+      if(!(cap > 0)){
+        ok = false;
+        flags.push(["bad","DADO","Os valores informados produzem teor de sólidos em volume nulo ou negativo, o que é fisicamente impossível. Confira se a densidade é a da mistura pronta e se o resíduo sólido está em massa, não em volume."]);
+      }
+    }
+
+    if(ok){
+      if(modo === "A"){
+        C = val("fCons");
+        if(isFinite(C) && C > 0){ efs = cap * C; }
+      } else {
+        var alvo = val("fAlvo");
+        if(isFinite(alvo) && alvo > 0){ efs = alvo; C = alvo / cap; }
+      }
+      if(isFinite(C) && C > 0){
+        efm = 1000 * C / dT;
+        efsolv = efm - efs;
+      }
+    }
+
+    var temResultado = isFinite(efs) && isFinite(C) && efs > 0 && C > 0;
+
+    var Ctot  = temResultado ? C + est : NaN;                 // teórico, com estruturante
+    var Cobra = temResultado ? Ctot * (1 + perd/100) : NaN;   // com perdas
+    var nDem  = (temResultado && isFinite(maxD) && maxD > 0) ? Math.ceil(Ctot / maxD - 1e-9) : NaN;
+    var kgTot = (temResultado && isFinite(area) && area > 0) ? Cobra * area : NaN;
+    var nBald = (isFinite(kgTot) && isFinite(emb) && emb > 0) ? Math.ceil(kgTot / emb - 1e-9) : NaN;
+
+    /* ---------- avisos ---------- */
+    if(temResultado){
+      if(tms >= 0.9999){
+        flags.push(["ok","100%","Produto isento de solvente: não há evaporação, a espessura de filme seco iguala a de filme molhado."]);
+      }
+      if(isFinite(exig) && exig > 0 && modo === "A"){
+        if(efs + 1e-9 >= exig){
+          flags.push(["ok","ATENDE","A espessura obtida de " + fmt(efs,3) + " mm atende à exigência de projeto de " + fmt(exig,3) + " mm."]);
+        } else {
+          var falta = (exig - efs) / cap;
+          flags.push(["bad","NÃO ATENDE","A espessura obtida de " + fmt(efs,3) + " mm fica abaixo dos " + fmt(exig,3) + " mm exigidos em projeto. Seriam necessários " + fmt(exig/cap,3) + " kg/m² de membrana, ou seja, " + fmt(falta,3) + " kg/m² a mais."]);
+        }
+      }
+      if(isFinite(consFT) && consFT > 0 && modo === "B" && C > consFT + 1e-9){
+        flags.push(["warn","CONSUMO","O consumo necessário de " + fmt(C,3) + " kg/m² supera o mínimo recomendado pelo fabricante (" + fmt(consFT,3) + " kg/m²). Verifique com o fabricante se o produto admite esse consumo e em quantas demãos."]);
+      }
+      if(isFinite(decl) && decl > 0){
+        var dif = (efs - decl) / decl * 100;
+        if(Math.abs(dif) > 10){
+          flags.push(["warn","FICHA TÉCNICA","A e.f.s. declarada pelo fabricante (" + fmt(decl,3) + " mm) diverge " + fmt(Math.abs(dif),1) + "% da calculada a partir da densidade e do resíduo sólido que ele mesmo publica (" + fmt(efs,3) + " mm). Solicite o esclarecimento por escrito &mdash; o item 11.1 b) do Guia Orientativo do IBI obriga o fabricante a declarar a e.f.s. equivalente a cada consumo."]);
+        } else {
+          flags.push(["ok","COERENTE","A e.f.s. declarada pelo fabricante é coerente com a calculada a partir dos seus próprios dados (divergência de " + fmt(Math.abs(dif),1) + "%)."]);
+        }
+      }
+      if(isFinite(nDem) && nDem >= 4){
+        flags.push(["warn","DEMÃOS","O consumo total exige " + nDem + " demãos com o limite informado por demão. Avalie um produto de maior capacidade de película ou reveja o cronograma, considerando o intervalo de secagem entre demãos."]);
+      }
+      if(est > 0){
+        flags.push(["ok","ESTRUTURANTE","Os " + fmt(est,3) + " kg/m² de saturação da tela entram no consumo total e na quantidade a adquirir, mas não são convertidos em espessura &mdash; critério conservador."]);
+      }
+      if(perd > 0){
+        flags.push(["ok","PERDAS","O fator de perdas afeta apenas a quantidade a adquirir. Não altera a espessura obtida, que depende só do produto efetivamente deixado sobre o substrato."]);
+      }
+    } else if(ok){
+      flags.push(["warn","AGUARDANDO", modo === "A"
+        ? "Informe densidade, resíduo em peso seco e consumo para obter a espessura."
+        : "Informe densidade, resíduo em peso seco e espessura alvo para obter o consumo."]);
+    } else if(flags.length === 0){
+      flags.push(["warn","AGUARDANDO","Informe a densidade da mistura e o resíduo em peso seco da ficha técnica."]);
+    }
+
+    /* ---------- painel ---------- */
+    $("hlCap").textContent = (modo === "A") ? "Espessura de filme seco obtida" : "Consumo de membrana necessário";
+    $("hlBig").textContent = temResultado ? (modo === "A" ? fmt(efs,3) : fmt(C,3)) : "—";
+    $("hlUnit").textContent = (modo === "A") ? "mm" : "kg/m²";
+
+    var rows = [];
+    function row(dt, dd, strong, tag){
+      rows.push('<div class="' + (strong ? "strong" : "") + '"><dt>' + dt + (tag ? '<span class="tag">' + tag + '</span>' : "") + "</dt><dd>" + dd + "</dd></div>");
+    }
+    row("Capacidade de película", isFinite(cap) ? fmt(cap,5) + " mm/(kg/m²)" : "—", false, "Cap");
+    row("Teor de sólidos em volume", isFinite(tvs) ? fmt(tvs*100,1) + " %" : "—", false, "Tvs");
+    row("Espessura de filme molhado", temResultado ? fmt(efm,3) + " mm" : "—", false, "e.f.m.");
+    row("Parcela que evapora", temResultado ? fmt(efsolv,3) + " mm" : "—", false, "");
+    row("Espessura de filme seco", temResultado ? fmt(efs,3) + " mm" : "—", true, "e.f.s.");
+    row("Consumo de membrana", temResultado ? fmt(C,3) + " kg/m²" : "—", modo === "B", "C");
+    if(est > 0) row("Saturação do estruturante", fmt(est,3) + " kg/m²", false, "");
+    row("Consumo total teórico", temResultado ? fmt(Ctot,3) + " kg/m²" : "—", est > 0, "");
+    row("Consumo de obra, com perdas", temResultado ? fmt(Cobra,3) + " kg/m²" : "—", false, fmt(perd,0) + "%");
+    row("Número de demãos", isFinite(nDem) ? String(nDem) : "—", false, "");
+    row("e.f.s. média por demão", (isFinite(nDem) && temResultado) ? fmt(efs/nDem,3) + " mm" : "—", false, "");
+    row("Quantidade a adquirir", isFinite(kgTot) ? fmt(kgTot,1) + " kg" : "—", false, "");
+    row("Embalagens", isFinite(nBald) ? String(nBald) : "—", false, "");
+    $("readout").innerHTML = rows.join("");
+
+    /* corte do filme */
+    var cutBox = $("cutBox");
+    if(temResultado && efm > 0){
+      cutBox.hidden = false;
+      var pFilm = Math.max(6, Math.min(94, efs / efm * 100));
+      var pSolv = 100 - pFilm;
+      var hTot = 116;
+      $("cutSolv").style.height = (hTot * pSolv / 100) + "px";
+      $("cutFilm").style.height = (hTot * pFilm / 100) + "px";
+      $("cutSolv").textContent = (pSolv > 9) ? ("evapora  " + fmt(efsolv,3) + " mm") : "";
+      $("cutFilm").textContent = "e.f.s.  " + fmt(efs,3) + " mm";
+      $("cutStack").setAttribute("aria-label",
+        "Corte: filme molhado de " + fmt(efm,3) + " milímetros, dos quais " + fmt(efs,3) + " permanecem como filme seco.");
+    } else {
+      cutBox.hidden = true;
+    }
+
+    /* avisos */
+    $("flags").innerHTML = flags.map(function(f){
+      return '<div class="flag ' + f[0] + '"><span class="lab">' + f[1] + "</span><p>" + f[2] + "</p></div>";
+    }).join("");
+
+    /* ---------- relatório ---------- */
+    var idRows = [
+      ["Obra", txt("fObra") || "—"],
+      ["Local / área", txt("fLocal") || "—"],
+      ["Produto", txt("fProduto") || "—"],
+      ["Norma / classe", txt("fNorma") || "—"],
+      ["Responsável técnico", txt("fResp") || "—"],
+      ["Revisão", txt("fRev") || "—"],
+      ["Data", txt("fData") ? txt("fData").split("-").reverse().join("/") : "—"],
+      ["Sentido do cálculo", modo === "A" ? "Consumo → espessura" : "Espessura → consumo"]
+    ];
+    $("repId").innerHTML = idRows.map(function(r){
+      return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
+    }).join("");
+    $("signResp").textContent = txt("fResp") || "Responsável técnico";
+
+    var solvNome = $("fSolv").options[$("fSolv").selectedIndex].text;
+    var ent = [
+      ["Densidade da mistura, d<sub>T</sub>", isFinite(dT) ? fmt(dT,0) + " kg/m³" : "—"],
+      ["Resíduo em peso seco, T<sub>ms</sub>", isFinite(tms) ? fmt(tms*100,1) + " %" : "—"],
+      ["Solvente / veículo", esc(solvNome) + (isFinite(dS) ? " — " + fmt(dS,0) + " kg/m³" : "")],
+      [modo === "A" ? "Consumo informado, C" : "Espessura alvo, e.f.s.",
+       modo === "A" ? (isFinite(C) ? fmt(C,3) + " kg/m²" : "—") : (isFinite(efs) ? fmt(efs,3) + " mm" : "—")]
+    ];
+    if(est > 0) ent.push(["Saturação do estruturante", fmt(est,3) + " kg/m²"]);
+    if(perd > 0) ent.push(["Fator de perdas adotado", fmt(perd,1) + " %"]);
+    if(isFinite(maxD) && maxD > 0) ent.push(["Consumo máximo por demão", fmt(maxD,3) + " kg/m²"]);
+    if(isFinite(area) && area > 0) ent.push(["Área a impermeabilizar", fmt(area,2) + " m²"]);
+    if(isFinite(emb) && emb > 0) ent.push(["Massa da embalagem", fmt(emb,2) + " kg"]);
+    if(isFinite(exig) && exig > 0 && modo === "A") ent.push(["Espessura mínima exigida em projeto", fmt(exig,3) + " mm"]);
+    $("repEnt").querySelector("tbody").innerHTML = ent.map(function(r){
+      return "<tr><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>";
+    }).join("");
+
+    var res = [
+      ["Teor de sólidos em volume, T<sub>vs</sub>", isFinite(tvs) ? fmt(tvs*100,1) + " %" : "—", false],
+      ["Capacidade de película, Cap<sub>pelíc</sub>", isFinite(cap) ? fmt(cap,5) + " mm/(kg/m²)" : "—", false],
+      ["Espessura de filme molhado, e.f.m.", temResultado ? fmt(efm,3) + " mm" : "—", false],
+      ["Parcela de solvente que evapora", temResultado ? fmt(efsolv,3) + " mm" : "—", false],
+      ["<strong>Espessura de filme seco, e.f.s.</strong>", temResultado ? fmt(efs,3) + " mm" : "—", true],
+      ["<strong>Consumo de membrana, C</strong>", temResultado ? fmt(C,3) + " kg/m²" : "—", true]
+    ];
+    if(est > 0) res.push(["Consumo total teórico, com estruturante", temResultado ? fmt(Ctot,3) + " kg/m²" : "—", false]);
+    res.push(["Consumo de obra, com perdas", temResultado ? fmt(Cobra,3) + " kg/m²" : "—", false]);
+    if(isFinite(nDem)) res.push(["Número de demãos", String(nDem), false]);
+    if(isFinite(kgTot)) res.push(["Quantidade total a adquirir", fmt(kgTot,1) + " kg", false]);
+    if(isFinite(nBald)) res.push(["Embalagens", String(nBald), false]);
+    $("repRes").querySelector("tbody").innerHTML = res.map(function(r){
+      return '<tr' + (r[2] ? ' class="hl"' : "") + "><th>" + r[0] + "</th><td>" + r[1] + "</td></tr>";
+    }).join("");
+
+    /* notas do relatório */
+    var notas = [];
+    notas.push("Cálculo pelo método fatorial de formação de filme do IBI: e.f.s. = 1000 · C · (1/d<sub>T</sub> − (1 − T<sub>ms</sub>)/d<sub>Solv</sub>). A capacidade de película depende apenas da densidade da mistura, do resíduo em peso seco e da densidade do solvente, sendo portanto uma propriedade do produto, independente do consumo aplicado.");
+    notas.push("Sistema moldado no local que cura por evaporação do solvente. O método não se aplica a sistemas cimentícios — argamassa polimérica (ABNT NBR 11905), argamassa impermeável (ABNT NBR 16072) e membrana de polímero acrílico com cimento (ABNT NBR 15885) —, nos quais parte da água é quimicamente combinada na hidratação do cimento e permanece no filme endurecido.");
+    if(est > 0){
+      notas.push("O consumo de saturação do estruturante foi somado ao consumo total e à quantidade a adquirir, porém não foi convertido em espessura: o produto que satura a trama da tela não é computado como filme impermeável, critério conservador para efeito de verificação da espessura mínima.");
+    }
+    if(perd > 0){
+      notas.push("O fator de perdas de " + fmt(perd,1) + " % incide somente sobre a quantidade a adquirir. A espessura de filme seco indicada corresponde ao produto efetivamente aplicado sobre o substrato.");
+    }
+    notas.push("A espessura aqui apurada é teórica, decorrente dos dados declarados pelo fabricante. A espessura efetivamente obtida depende do preparo do substrato, com rugosidade entre CSP 2 e 3, do método de aplicação e do controle de consumo em obra, e deve ser verificada conforme o item 13.5 do Guia Orientativo do IBI. Para verificação durante a aplicação, admite-se o pente de espessura úmida conforme ASTM D4414, convertendo-se a leitura pela relação e.f.s. = e.f.m. × T<sub>vs</sub>" + (isFinite(tvs) ? " = e.f.m. × " + fmt(tvs,4) : "") + ".");
+    $("repNotas").innerHTML = notas.map(function(n){ return "<p>" + n + "</p>"; }).join("");
+  }
+
+  /* ---------- eventos ---------- */
+  var campos = ["fProduto","fNorma","fDens","fDensUn","fTms","fSolvD","fCons","fExig","fAlvo",
+                "fConsFT","fEst","fDemao","fPerda","fArea","fEmb","fDecl",
+                "fObra","fLocal","fResp","fRev","fData"];
+  campos.forEach(function(id){
+    var el = $(id); if(!el) return;
+    el.addEventListener("input", calc);
+    el.addEventListener("change", calc);
+  });
+
+  /* ---------- exemplo e limpeza ---------- */
+  function exemplo(){
+    setModo("A");
+    $("fProduto").value = "Exemplo do guia — membrana acrílica monocomponente base água";
+    $("fNorma").value   = "ABNT NBR 13321 — membrana acrílica";
+    $("fDens").value    = "1,40";  $("fDensUn").value = "1000";
+    $("fTms").value     = "71";
+    $("fSolv").value    = "1000";  $("fSolvD").value = "1000"; $("fSolvD").disabled = true;
+    $("fCons").value    = "2,00";
+    $("fExig").value    = "";
+    $("fTemEst").checked = false;  $("wrapEst").hidden = true; $("fEst").value = "";
+    $("fDemao").value   = "1,00";
+    $("fPerda").value   = "10";
+    $("fArea").value    = "120";
+    $("fEmb").value     = "20";
+    $("fDecl").value    = "";
+    $("fLocal").value   = "";
+    $("fObra").value    = "";
+    calc();
+  }
+  function limpar(){
+    campos.forEach(function(id){
+      var el = $(id); if(!el) return;
+      if(el.tagName === "SELECT"){ el.selectedIndex = 0; } else { el.value = ""; }
+    });
+    $("fSolv").selectedIndex = 0; $("fSolvD").value = "1000"; $("fSolvD").disabled = true;
+    $("fTemEst").checked = false; $("wrapEst").hidden = true;
+    $("fDensUn").value = "1000";
+    hoje();
+    calc();
+    $("fProduto").focus();
+  }
+  function hoje(){
+    var d = new Date();
+    var p = function(n){ return (n < 10 ? "0" : "") + n; };
+    $("fData").value = d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate());
+  }
+
+  $("btnExemplo").addEventListener("click", exemplo);
+  $("btnLimpar").addEventListener("click", limpar);
+  $("btnImprimir").addEventListener("click", function(){ window.print(); });
+
+  /* ---------- estado inicial ---------- */
+  hoje();
+  exemplo();
+})();
+</script>
+</body>
+</html>
